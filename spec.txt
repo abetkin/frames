@@ -1,0 +1,27 @@
+
+----
+collect Mark instances (?)
+m._methodName
+1 TS for 1 classmethod
+TS:
+    call all of marks (make patches)
+    call main ts method
+---
+
+
+moreframes
+
+
+class MyTest(TestMark):
+    async def co_feat(self):
+        1
+    
+    @classmethod
+    def test_feat2(cls):
+        1
+
+Launch:
+
+python -m mf -d .mf.py  script.py
+MF_DIR=~/.mf; python -m mf script.py
+python -m mf.test test.Test
