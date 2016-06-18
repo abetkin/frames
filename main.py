@@ -1,11 +1,15 @@
-from unittest.main import TestProgram, loader
+from unittest.main import TestProgram as _TestProgram, loader
 
 # FIXME
 from case import Case
 
-class MFProgram(TestProgram):
-    # FIXME
-    pass
+class TestProgram(_TestProgram):
+
+    def __init__(self, *args, **kwargs):
+        loader = CoLoader()
+        kwargs['testLoader'] = loader
+        super(TestProgram, self).__init__(*args, **kwargs)
+
 
 class CoLoader(loader.TestLoader):
 
@@ -50,22 +54,7 @@ class MFRunner(object):
     def __init__(self, stream=None, descriptions=True, verbosity=1,
                  failfast=False, buffer=False, resultclass=None, warnings=None,
                  *, tb_locals=False):
-        """Construct a TextTestRunner.
-
-        Subclasses should accept **kwargs to ensure compatibility as the
-        interface changes.
-        """
-        # if stream is None:
-        #     stream = sys.stderr
-        # self.stream = _WritelnDecorator(stream)
-        # self.descriptions = descriptions
-        # self.verbosity = verbosity
-        # self.failfast = failfast
-        # self.buffer = buffer
-        # self.tb_locals = tb_locals
-        # self.warnings = warnings
-        # if resultclass is not None:
-        #     self.resultclass = resultclass
+        pass
 
     def run(self, item):
         "Run the given test case or test suite."
