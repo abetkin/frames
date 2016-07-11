@@ -1,7 +1,7 @@
 from unittest.main import TestProgram as _TestProgram, loader
 
 # FIXME
-from case import Case
+from .case import Case
 
 class TestProgram(_TestProgram):
 
@@ -20,13 +20,10 @@ class CoLoader(loader.TestLoader):
         def isCoro(attrname, testCaseClass=testCaseClass, prefix='co_'):
             return attrname.startswith(prefix) and \
                 callable(getattr(testCaseClass, attrname))
-        testFnNames = list(filter(isTestMethod, dir(testCaseClass)))
+        testFnNames = list(filter(isCoro, dir(testCaseClass)))
         # if self.sortTestMethodsUsing:
         #     testFnNames.sort(key=functools.cmp_to_key(self.sortTestMethodsUsing))
         return sorted(testFnNames)
-
-    def suiteClass(self, tests):
-        return Suite(tests)
     
     def loadTestsFromTestCase(self, testCaseClass):
         testCaseNames = self.getTestCaseNames(testCaseClass)

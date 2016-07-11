@@ -1,4 +1,7 @@
 
-from main import TestProgram
+from .main import TestProgram
 
 TestProgram(module=None)
+
+
+# TODO filter async

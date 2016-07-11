@@ -1,10 +1,8 @@
-class Case(object):
-    pass
+from frames.case import Case
 
 class Nut(Case):
 
-    @classmethod
-    def main(cls):
+    def co_1(self):
         pass
     
     def co_some(self):
