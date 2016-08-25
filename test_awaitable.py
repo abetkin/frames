@@ -42,6 +42,25 @@ def run(f):
     co = f(aa)
     co.send(None)
 
+
+
+class Importer(dict):
+    ATTRS = [
+        '_ns'
+    ]
+
+    def __init__(self, obj=None, attr=None):
+        self.__dict__ = self
+        self._ns.obj = obj
+        self._ns.attr = attr
+
+    def __getitem__(self, key):
+        if key in Importer.ATTRS:
+            return super().__getitem__(key)
+        self._ns.attr = key
+        
+
+
 if __name__ == '__main__':
     run(cofunc)
     print('result =', Target().method())
