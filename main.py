@@ -1,50 +1,54 @@
-from unittest.main import TestProgram as _TestProgram, loader
+from unittest.main import TestProgram as _TestProgram
 
-# FIXME
-from .case import Case
+import inspect
 
-class TestProgram(_TestProgram):
+from . import Loco
+
+class ActivateLocos(_TestProgram):
 
     def __init__(self, *args, **kwargs):
-        loader = CoLoader()
+        loader = LocoLoader()
         kwargs['testLoader'] = loader
         super(TestProgram, self).__init__(*args, **kwargs)
 
 
-class CoLoader(loader.TestLoader):
+class LocoLoader(loader.TestLoader):
 
-    def getTestCaseNames(self, testCaseClass):
-        """Return a sorted sequence of method names found within testCaseClass
-        """
+    def getTestCaseNames(self, loco_class):
+        def get_names():
+            for name in dir(loco_class):
+                val = getattr(loco_class, name, None)
+                if inspect.iscoroutinefunction(val):
+                    yield val
+        return sorted(get_names())
 
-        def isCoro(attrname, testCaseClass=testCaseClass, prefix='co_'):
-            return attrname.startswith(prefix) and \
-                callable(getattr(testCaseClass, attrname))
-        testFnNames = list(filter(isCoro, dir(testCaseClass)))
-        # if self.sortTestMethodsUsing:
-        #     testFnNames.sort(key=functools.cmp_to_key(self.sortTestMethodsUsing))
-        return sorted(testFnNames)
-    
-    def loadTestsFromTestCase(self, testCaseClass):
-        testCaseNames = self.getTestCaseNames(testCaseClass)
-        if not testCaseNames and hasattr(testCaseClass, 'runTest'):
-            testCaseNames = ['runTest']
-        loaded_suite = self.suiteClass(map(testCaseClass, testCaseNames))
+    def loadTestsFromTestCase(self, loco_class):
+        testCaseNames = self.getTestCaseNames(loco_class)
+        locos = []
+        for name in testCaseNames:
+            locofunc = getattr(loco_class, name, None)
+            co = locofunc()
+            def get_co():
+                return co
+            locos.append(co)
+
+        loaded_suite = self.suiteClass(locos)
         return loaded_suite
 
     def loadTestsFromModule(self, module, *args, pattern=None, **kws):
         tests = []
         for name in dir(module):
             obj = getattr(module, name)
-            if isinstance(obj, type) and issubclass(obj, Case):
+            if isinstance(obj, type) and issubclass(obj, Loco):
                 tests.append(self.loadTestsFromTestCase(obj))
-
         return tests
 
+    # FIXME loadFromName
 
 
 
-class MFRunner(object):
+
+class LocoRunner(object):
 
     # resultclass = TextTestResult
 
@@ -53,18 +57,21 @@ class MFRunner(object):
                  *, tb_locals=False):
         pass
 
-    def run(self, item):
-        "Run the given test case or test suite."
-        item()
+    def run(self, loco):
+        # FIXME
+        loco.send(None)
+        def get_co():
+            return co
+        loco(get_co)
 
 
-class Suite(object):
-    def __init__(self, co_items):
-        self.co_items = co_items
-    
-    def __call__(self):
-        'FIXME'
-        for co in self.co_items:
-            co.send(None)
-        main = klass.main
-        main()
+# class Suite(object):
+#     def __init__(self, co_items):
+#         self.co_items = co_items
+
+#     def __call__(self):
+#         'FIXME'
+#         for co in self.co_items:
+#             co.send(None)
+#         main = klass.main
+#         main()

@@ -1,7 +1,5 @@
 
-from .main import TestProgram
+from .main import ActivateLocos
 
-TestProgram(module=None)
+ActivateLocos(module=None)
 
-
-# TODO filter async
