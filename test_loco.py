@@ -1,19 +1,24 @@
 
-
+from .logic import DoLogic
 
 from .base import Loco
-
 
 class Suite1(Loco):
 
     async def loco1(self):
-        print('lo co')
+        ret = await (self@(DoLogic, 'method'))
+        print('returned', ret)
+        return ret
 
+
+
+print(__name__)
 
 if __name__ == '__main__':
-    import ipdb
-    with ipdb.launch_ipdb_on_exception():
-        from main import ActivateLocos
-
-        ActivateLocos()
+    from .main import ActivateLocos
+    
+    ActivateLocos()
+    l = DoLogic()
+    
+    l.method()
 
