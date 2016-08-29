@@ -5,8 +5,8 @@ from .base import Loco
 
 class Suite1(Loco):
 
-    async def loco1(self):
-        ret = await (self@(DoLogic, 'method'))
+    def co_1(self):
+        ret = yield DoLogic, 'method'
         print('returned', ret)
         return ret
 

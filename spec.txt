@@ -1,26 +1,9 @@
 
-----
-collect Mark instances (?)
-m._methodName
-1 TS for 1 classmethod
-TS:
-    call all of marks (make patches)
-    call main ts method
----
+TestCase or Loco objects
 
-
-moreframes
-
-
-# Where to group into?? Case
-
-class MyTest(TestMark):
-    async def co_feat(self):
-        1
-    
-    @classmethod
-    def test_feat2(cls):
-        1
+@loco
+def _(self):
+    yield Some.method
 
 Launch:
 

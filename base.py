@@ -26,7 +26,6 @@ class Patch:
         self.off()
         return ret
 
-
     def make_wrapper(self, wrapped):
         wrapped = self.original
         __self__ = getattr(wrapped, '__self__', None)
@@ -49,6 +48,8 @@ class Patch:
 
 
 class Loco:
+    # TODO: add unittest asserts
+
     def __init__(self, name):
         self.name = name
         func = getattr(self, name)
