@@ -1,10 +1,11 @@
 from unittest.main import TestProgram as _TestProgram, loader
 
 import inspect
+import sys
 
 from .base import Loco
 
-class ActivateLocos(_TestProgram):
+class DiscoverLocos(_TestProgram):
     def __init__(self, *args, **kwargs):
         loader = LocoLoader()
         kwargs.update({
@@ -12,10 +13,18 @@ class ActivateLocos(_TestProgram):
             'module': None,
             'exit': False,
         })
-        super().__init__(*args, **kwargs)
+        sys_argv = sys.argv[:]
+        try:
+            sys.argv[1:] = ['discover']
+            super().__init__(*args, **kwargs)
+        finally:
+            sys.argv = sys_argv
+        
 
 
 class LocoLoader(loader.TestLoader):
+
+    PATTERN = 'loco*.py'
 
     def getTestCaseNames(self, loco_class):
         def get_names():
@@ -38,3 +47,7 @@ class LocoLoader(loader.TestLoader):
             if isinstance(obj, type) and issubclass(obj, Loco):
                 tests.extend(self.loadTestsFromTestCase(obj))
         return self.suiteClass(tests)
+
+    def discover(self, start_dir, pattern, top_level_dir=None):
+        pattern = self.PATTERN
+        return super().discover(start_dir, pattern, top_level_dir)

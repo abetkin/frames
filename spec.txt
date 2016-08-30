@@ -1,9 +1,12 @@
 
 TestCase or Loco objects
 
-@loco
+@lc
 def _(self):
     yield Some.method
+
+def l(self):
+    kw = (yield container, 'attr')['kw']
 
 Launch:
 

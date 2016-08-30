@@ -1,5 +1,22 @@
+"""
+loco: "Logical" coroutines.
+Usage:
+    loco [--] [ <arg>... ]
+    loco -h | --help
+"""
 
-from .main import ActivateLocos
+import sys
+import six
+import docopt
 
-ActivateLocos(module=None)
+from .main import DiscoverLocos
+
+DiscoverLocos()
+
+
+a = docopt.docopt(__doc__)
+sys.argv = a['<arg>']
+
+with open(a['<arg>'][0], "rb") as f:
+    six.exec_(compile(f.read(), a['<arg>'][0], 'exec'))
 
