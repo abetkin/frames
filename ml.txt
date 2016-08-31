@@ -1,5 +1,9 @@
 
 
-1. discovery of `Loco` objects, sending None to them
-2. patching functions, peeking results
-3. python module like pdb to be able to run python scripts with it
+await -> yield
+
+test differently bound methods
+
+write loco-routines for pony.
+
+think about better locos discovery

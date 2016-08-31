@@ -24,7 +24,10 @@ class DiscoverLocos(_TestProgram):
 
 class LocoLoader(loader.TestLoader):
 
-    PATTERN = 'loco*.py'
+    PATTERNS = [
+        'loco_*.py',
+        # 'test*.py',
+    ]
 
     def getTestCaseNames(self, loco_class):
         def get_names():
@@ -48,6 +51,15 @@ class LocoLoader(loader.TestLoader):
                 tests.extend(self.loadTestsFromTestCase(obj))
         return self.suiteClass(tests)
 
+    # TODO loadFromName
+
     def discover(self, start_dir, pattern, top_level_dir=None):
-        pattern = self.PATTERN
-        return super().discover(start_dir, pattern, top_level_dir)
+        suite = None
+        for pattern in self.PATTERNS:
+            s = super().discover(start_dir, pattern, top_level_dir)
+            import ipdb; ipdb.set_trace()
+            if suite is None:
+                suite = s
+            else:
+                suite.addTests(s)
+        return suite
