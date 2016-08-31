@@ -1,15 +1,3 @@
 
-TestCase or Loco objects
-
-@lc
-def _(self):
-    yield Some.method
-
-def l(self):
-    kw = (yield container, 'attr')['kw']
-
-Launch:
-
-python -m mf -d .mf.py  script.py
-MF_DIR=~/.mf; python -m mf script.py
-python -m mf.test test.Test
+Discovery:
+script dir | current dir |

@@ -26,7 +26,7 @@ class LocoLoader(loader.TestLoader):
 
     PATTERNS = [
         'loco_*.py',
-        # 'test*.py',
+        'test*.py',
     ]
 
     def getTestCaseNames(self, loco_class):
@@ -57,7 +57,6 @@ class LocoLoader(loader.TestLoader):
         suite = None
         for pattern in self.PATTERNS:
             s = super().discover(start_dir, pattern, top_level_dir)
-            import ipdb; ipdb.set_trace()
             if suite is None:
                 suite = s
             else:
