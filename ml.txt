@@ -1,11 +1,13 @@
 
 
-await -> yield
+1) await -> yield
+2) yield Klass.method (__qual_path__)
 
 test differently bound methods
 
-write loco-routines for pony.
+write loco-routines for pony, django migrations
 
 think about better locos discovery
 
 test locos in test*.py files.
+
