@@ -1,7 +1,7 @@
 from contextlib import suppress
 from functools import wraps
 
-
+# rename: call
 class Patch:
 
     def __init__(self, co, parent, attribute):
@@ -19,7 +19,7 @@ class Patch:
             setattr(self.parent, self.attribute, self.original)
         else:
             delattr(self.parent, self.attribute)
-    
+
     def make_wrapper(self, wrapped):
         wrapped = self.original
         __self__ = getattr(wrapped, '__self__', None)
@@ -36,6 +36,7 @@ class Patch:
         if isinstance(__self__, type):
             func = classmethod(func)
         elif __self__:
+            # FIXME add import
             func = MethodType(func, __self__)
         return func
 
@@ -48,7 +49,7 @@ class Loco:
         func = getattr(self, name)
         self._gen_func = func
         self._gen = iter(self)
-    
+
     def __call__(self, result):
         with suppress(StopIteration):
             p = self._gen.send(None)

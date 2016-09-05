@@ -1,3 +1,11 @@
 
 Discovery:
 script dir | current dir |
+
+await: wrappers over generators
+
+yield 'path.to.Class.method'
+
+patch.listeners: generators
+
+use cases: logging, testing, dbg, inv checker

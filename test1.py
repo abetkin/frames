@@ -10,5 +10,3 @@ class Suite1(unittest.TestCase):
         print('test1: method returned', ret)
         return ret
 
-
-# FIXME FIXME

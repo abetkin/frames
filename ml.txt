@@ -1,10 +1,13 @@
 
 
-test differently bound methods
+tests: test differently bound methods
 
 write loco-routines for pony, django migrations
 
 think about better locos discovery
 
-test locos in test*.py files.
+poc:
 
+test locos in test*.py files. <---
+
+patch.listeners: generators
