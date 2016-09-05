@@ -1,5 +1,5 @@
 
-from .logic import DoLogic
+from logic import DoLogic
 
 l = DoLogic()
 

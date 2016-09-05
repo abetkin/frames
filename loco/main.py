@@ -3,6 +3,8 @@ from unittest.main import TestProgram as _TestProgram, loader
 import inspect
 import sys
 
+from fnmatch import fnmatch
+
 from .base import Loco
 
 class DiscoverLocos(_TestProgram):
@@ -25,15 +27,16 @@ class DiscoverLocos(_TestProgram):
 class LocoLoader(loader.TestLoader):
 
     PATTERNS = [
-        'loco_*.py',
-        'test*.py',
+        'loco_*',
+        'test*',
     ]
 
     def getTestCaseNames(self, loco_class):
         def get_names():
             for name in dir(loco_class):
                 val = getattr(loco_class, name, None)
-                if inspect.iscoroutinefunction(val):
+                if inspect.isgeneratorfunction(val) \
+                        and any(fnmatch(name, p) for p in self.PATTERNS):
                     yield name
         return sorted(get_names())
 
@@ -55,7 +58,8 @@ class LocoLoader(loader.TestLoader):
 
     def discover(self, start_dir, pattern, top_level_dir=None):
         suite = None
-        for pattern in self.PATTERNS:
+        PATTERNS = [''.join((p, '.py')) for p in self.PATTERNS]
+        for pattern in PATTERNS:
             s = super().discover(start_dir, pattern, top_level_dir)
             if suite is None:
                 suite = s

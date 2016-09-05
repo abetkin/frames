@@ -4,7 +4,7 @@ from functools import wraps
 
 class Patch:
 
-    def __init__(self, co, attribute, parent):
+    def __init__(self, co, parent, attribute):
         self.co = co
         self.parent = parent
         self.attribute = attribute
@@ -20,12 +20,6 @@ class Patch:
         else:
             delattr(self.parent, self.attribute)
     
-    def __await__(self):
-        self.on()
-        ret = (yield self)
-        self.off()
-        return ret
-
     def make_wrapper(self, wrapped):
         wrapped = self.original
         __self__ = getattr(wrapped, '__self__', None)
@@ -46,21 +40,29 @@ class Patch:
         return func
 
 
-
 class Loco:
     # TODO: add unittest asserts
 
     def __init__(self, name):
         self.name = name
         func = getattr(self, name)
-        self._co = func()
+        self._gen_func = func
+        self._gen = iter(self)
     
     def __call__(self, result):
         with suppress(StopIteration):
-            self._co.send(None)
-    
-    def __matmul__(self, target):
-        # FIXME
-        container, attr = target
-        return Patch(self._co, attr, container)
-    
+            p = self._gen.send(None)
+
+    def __iter__(self):
+        co = self._gen_func()
+        with suppress(StopIteration):
+            val = None
+            while True:
+                container, attr = co.send(val)
+                p = Patch(self._gen, container, attr)
+                p.on()
+                val = (yield p)
+                p.off()
+
+'''S
+'''
