@@ -9,3 +9,11 @@ yield 'path.to.Class.method'
 patch.listeners: generators
 
 use cases: logging, testing, dbg, inv checker
+
+
+class Case(TestCase):
+    def loco_func(self):
+        yield 'some.call'
+
+    def test_func(self):
+        push_the_button()

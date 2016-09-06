@@ -26,6 +26,7 @@ class DiscoverLocos(_TestProgram):
 
 class LocoLoader(loader.TestLoader):
 
+    # FIXME
     PATTERNS = [
         'loco_*',
         'test*',

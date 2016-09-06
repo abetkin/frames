@@ -6,8 +6,8 @@ write loco-routines for pony, django migrations
 
 think about better locos discovery
 
-poc:
+tests: separate story
 
-test locos in test*.py files. <---
+poc:
 
 patch.listeners: generators

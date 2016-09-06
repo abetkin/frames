@@ -65,5 +65,3 @@ class Loco:
                 val = (yield p)
                 p.off()
 
-'''S
-'''
