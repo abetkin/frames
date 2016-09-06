@@ -1,2 +1,3 @@
 
 await SetOp(obj)
+aggregating locos, events?
