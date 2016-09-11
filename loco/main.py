@@ -26,18 +26,14 @@ class DiscoverLocos(_TestProgram):
 
 class LocoLoader(loader.TestLoader):
 
-    # FIXME
-    PATTERNS = [
-        'loco_*',
-        'test*',
-    ]
+    PATTERN = 'loco_*'
 
     def getTestCaseNames(self, loco_class):
         def get_names():
             for name in dir(loco_class):
                 val = getattr(loco_class, name, None)
                 if inspect.isgeneratorfunction(val) \
-                        and any(fnmatch(name, p) for p in self.PATTERNS):
+                        and fnmatch(name, self.PATTERN):
                     yield name
         return sorted(get_names())
 
@@ -57,13 +53,6 @@ class LocoLoader(loader.TestLoader):
 
     # TODO loadFromName
 
-    def discover(self, start_dir, pattern, top_level_dir=None):
-        suite = None
-        PATTERNS = [''.join((p, '.py')) for p in self.PATTERNS]
-        for pattern in PATTERNS:
-            s = super().discover(start_dir, pattern, top_level_dir)
-            if suite is None:
-                suite = s
-            else:
-                suite.addTests(s)
-        return suite
+    def discover(self, start_dir, pattern=None, top_level_dir=None):
+        pattern = self.PATTERN
+        return super().discover(start_dir, pattern, top_level_dir)
