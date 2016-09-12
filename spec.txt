@@ -10,3 +10,5 @@ patch.listeners: generators
 
 use cases: logging, testing, dbg, inv checker
 
+with loco.on():
+    do_smth()

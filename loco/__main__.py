@@ -13,6 +13,8 @@ from .main import DiscoverLocos
 
 DiscoverLocos()
 
+# FIXME discover in the launched script too 
+
 
 a = docopt.docopt(__doc__)
 sys.argv = a['<arg>']
