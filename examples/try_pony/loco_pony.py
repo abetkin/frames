@@ -6,14 +6,17 @@ from pony.orm.sqltranslation import SQLTranslator
 
 class Ex(Loco):
 
-    def loco_1(self):
-        while True:
-            call = yield SQLTranslator, 'call'
-            print('call returned', call)
+    # def loco_1(self):
+    #     while True:
+    #         call = yield SQLTranslator, 'call'
+    #         print('call returned', call)
 
     def loco_2(self):
-        ast = yield SQLTranslator, 'construct_sql_ast'
-        print('ast', ast)
+        yielded = (yield SQLTranslator, '__init__')
+        # _, [tr, *] = yielded
+        
+        # rv, [tr, *] = yield 'mod', 'SQLTranslator'
+        print('tr', tr)
 
 
 

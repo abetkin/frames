@@ -1,7 +1,7 @@
 from contextlib import suppress
 from functools import wraps
 
-# rename: call
+# TODO replace: call
 class Patch:
 
     def __init__(self, co, parent, attribute):
@@ -20,6 +20,9 @@ class Patch:
         else:
             delattr(self.parent, self.attribute)
 
+    def _make_call_info(self):
+        BoundArguments
+
     def make_wrapper(self, wrapped):
         wrapped = self.original
         __self__ = getattr(wrapped, '__self__', None)
@@ -29,8 +32,9 @@ class Patch:
         @wraps(wrapped)
         def func(*args, **kwargs):
             ret = wrapped(*args, **kwargs)
+            call_args = CallArgs(func, args, kwargs)
             with suppress(StopIteration):
-                self.co.send(ret)
+                self.co.send((ret, call_args))
             return ret
 
         if isinstance(__self__, type):
@@ -39,6 +43,42 @@ class Patch:
             # FIXME add import
             func = MethodType(func, __self__)
         return func
+
+
+import inspect
+
+class CallArgs:
+
+    def __init__(self, func, *args, **kwargs):
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+        self._signature = inspect.signature(func)
+        self.bound_args = self._signature.bind(*args, **kwargs).arguments
+
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self.args[key]
+        value = self.bound_args.get(key, NotImplemented)
+        if value is not NotImplemented:
+            return value
+        value = self._signature.parameters.get(key, NotImplemented)
+        if value is not NotImplemented:
+            return value
+        return KeyError(key)
+
+    def __repr__(self):
+        def pairs():
+            for name, parameter in self._signature.parameters.items():
+                value = self.bound_args.get(name, parameter.default)
+                yield "%s=%s" % (name, value)
+        return '(%s)' % ', '.join(pairs())
+
+    def __iter__(self):
+        return iter(self.args)
+
+
 
 
 class Loco:
@@ -65,3 +105,7 @@ class Loco:
                 val = (yield p)
                 p.off()
 
+
+class Call:
+    def __init__(self, target, attr=None):
+        1
