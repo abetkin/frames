@@ -31,11 +31,14 @@ class Patch:
 
         @wraps(wrapped)
         def func(*args, **kwargs):
-            ret = wrapped(*args, **kwargs)
-            call_args = CallArgs(func, args, kwargs)
-            with suppress(StopIteration):
-                self.co.send((ret, call_args))
-            return ret
+            import ipdb
+            with ipdb.launch_ipdb_on_exception():
+                    
+                ret = wrapped(*args, **kwargs)
+                call_args = CallArgs(func, args, kwargs)
+                with suppress(StopIteration):
+                    self.co.send((ret, call_args))
+                return ret
 
         if isinstance(__self__, type):
             func = classmethod(func)
@@ -49,7 +52,7 @@ import inspect
 
 class CallArgs:
 
-    def __init__(self, func, *args, **kwargs):
+    def __init__(self, func, args, kwargs):
         self.func = func
         self.args = args
         self.kwargs = kwargs

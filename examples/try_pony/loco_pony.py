@@ -16,6 +16,7 @@ class Ex(Loco):
         # _, [tr, *] = yielded
         
         # rv, [tr, *] = yield 'mod', 'SQLTranslator'
+        tr = yielded[1][0]
         print('tr', tr)
 
 
