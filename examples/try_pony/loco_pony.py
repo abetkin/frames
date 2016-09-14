@@ -2,7 +2,7 @@
 
 from loco import Loco
 
-from pony.orm.sqltranslation import SQLTranslator
+from pony.orm.sqltranslation import SQLTranslator, Monad
 
 class Ex(Loco):
 
@@ -13,11 +13,16 @@ class Ex(Loco):
 
     def loco_2(self):
         yielded = (yield SQLTranslator, '__init__')
-        # _, [tr, *] = yielded
+        _, [tr, *_] = yielded
         
         # rv, [tr, *] = yield 'mod', 'SQLTranslator'
-        tr = yielded[1][0]
+        # tr = yielded[1][0]
         print('tr', tr)
+    
+    def loco_monads(self):
+        while True:
+            _, [m, *_] = yield Monad, '__init__'
+            print(m)
 
 
 
