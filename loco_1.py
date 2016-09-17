@@ -7,3 +7,4 @@ class Suite1(Loco):
         ret = yield DoLogic, 'method'
         print('method returned', ret)
         return ret
+

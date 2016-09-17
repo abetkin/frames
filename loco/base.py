@@ -31,14 +31,13 @@ class Patch:
 
         @wraps(wrapped)
         def func(*args, **kwargs):
-            import ipdb
-            with ipdb.launch_ipdb_on_exception():
-                    
-                ret = wrapped(*args, **kwargs)
-                call_args = CallArgs(func, args, kwargs)
-                with suppress(StopIteration):
-                    self.co.send((ret, call_args))
-                return ret
+            # import ipdb
+            # with ipdb.launch_ipdb_on_exception():
+            ret = wrapped(*args, **kwargs)
+            call_args = CallArgs(func, args, kwargs)
+            with suppress(StopIteration):
+                self.co.send((ret, call_args))
+            return ret
 
         if isinstance(__self__, type):
             func = classmethod(func)
@@ -46,6 +45,14 @@ class Patch:
             # FIXME add import
             func = MethodType(func, __self__)
         return func
+
+
+class any(object):
+    def __init__(self, *patches):
+        1
+    
+    def __iter__(self):
+        1
 
 
 import inspect
@@ -102,7 +109,19 @@ class Loco:
         with suppress(StopIteration):
             val = None
             while True:
-                container, attr = co.send(val)
+                value = co.send(val)
+                if isinstance(val, any):
+                    '''
+                    patch 1
+                    patch 2
+                    yield p # how dif ?
+                    unpatch both
+                    '''
+                    
+
+
+                container, attr = value
+                # container, attr = co.send(val)
                 p = Patch(self._gen, container, attr)
                 p.on()
                 val = (yield p)
