@@ -1,7 +1,6 @@
 from contextlib import suppress
 from functools import wraps
 
-# TODO replace: call
 class Patch:
 
     def __init__(self, co, parent, attribute):
@@ -20,8 +19,8 @@ class Patch:
         else:
             delattr(self.parent, self.attribute)
 
-    def _make_call_info(self):
-        BoundArguments
+    def __or__(self, other):
+        return AnyCall(self, other)
 
     def make_wrapper(self, wrapped):
         wrapped = self.original
@@ -47,12 +46,10 @@ class Patch:
         return func
 
 
-class any(object):
-    def __init__(self, *patches):
-        1
-    
-    def __iter__(self):
-        1
+class AnyCall(object):
+    def __init__(self, *calls):
+        self.calls = calls
+
 
 
 import inspect
@@ -104,30 +101,35 @@ class Loco:
         with suppress(StopIteration):
             p = self._gen.send(None)
 
+    def call(self, container, attr):
+        return Patch(self._gen, container, attr)
+
     def __iter__(self):
         co = self._gen_func()
         with suppress(StopIteration):
             val = None
-            while True:
+            while True: #?
                 value = co.send(val)
-                if isinstance(val, any):
-                    '''
-                    patch 1
-                    patch 2
-                    yield p # how dif ?
-                    unpatch both
-                    '''
+                if isinstance(value, AnyCall):
+                    for i, p in enumerate(value.calls):
+                        p.on()
+                    val = (yield)
+                    
+                    # TODO check
+                    # value.calls[1].original==val[1].func
+
+                    ipdb.set_trace()
+                    for p in value.calls:
+                        p.off()
+                    continue
+
                     
 
 
-                container, attr = value
+                p = value
                 # container, attr = co.send(val)
-                p = Patch(self._gen, container, attr)
                 p.on()
-                val = (yield p)
+                val = (yield)
                 p.off()
 
 
-class Call:
-    def __init__(self, target, attr=None):
-        1

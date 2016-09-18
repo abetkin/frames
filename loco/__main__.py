@@ -19,6 +19,9 @@ DiscoverLocos()
 a = docopt.docopt(__doc__)
 sys.argv = a['<arg>']
 
-with open(a['<arg>'][0], "rb") as f:
-    six.exec_(compile(f.read(), a['<arg>'][0], 'exec'))
+import ipdb
+with ipdb.launch_ipdb_on_exception():
+
+    with open(a['<arg>'][0], "rb") as f:
+        six.exec_(compile(f.read(), a['<arg>'][0], 'exec'))
 
