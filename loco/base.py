@@ -3,7 +3,10 @@ from functools import wraps
 
 class Patch:
 
-    def __init__(self, co, parent, attribute):
+    def __init__(self, co, parent, attribute,
+                 type='exit'):
+        assert type in ['enter', 'exit']
+        self.type = type
         self.co = co
         self.parent = parent
         self.attribute = attribute
@@ -30,12 +33,14 @@ class Patch:
 
         @wraps(wrapped)
         def func(*args, **kwargs):
-            # import ipdb
-            # with ipdb.launch_ipdb_on_exception():
-            ret = wrapped(*args, **kwargs)
             call_args = CallArgs(func, args, kwargs)
-            with suppress(StopIteration):
-                self.co.send((ret, call_args))
+            if self.type == 'enter':
+                with suppress(StopIteration):
+                    self.co.send(call_args)
+            ret = wrapped(*args, **kwargs)
+            if self.type == 'exit':
+                with suppress(StopIteration):
+                    self.co.send((ret, call_args))
             return ret
 
         if isinstance(__self__, type):
@@ -118,7 +123,6 @@ class Loco:
                     # TODO check
                     # value.calls[1].original==val[1].func
 
-                    ipdb.set_trace()
                     for p in value.calls:
                         p.off()
                     continue

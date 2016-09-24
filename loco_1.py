@@ -21,3 +21,5 @@ class Suite1(Loco):
             elif ret.which == 1:
                 print('method returned', ret)
         print('Finished')
+
+# TODO self.enter() self.exit()
