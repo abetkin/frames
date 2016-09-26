@@ -42,7 +42,7 @@ class Patch:
                 with suppress(StopIteration):
                     self.co.send((ret, call_args))
             return ret
-
+        
         if isinstance(__self__, type):
             func = classmethod(func)
         elif __self__:
@@ -109,6 +109,12 @@ class Loco:
     def call(self, container, attr):
         return Patch(self._gen, container, attr)
 
+    def enter(self, container, attr):
+        return Patch(self._gen, container, attr, type='enter')
+    
+    def exit(self, container, attr):
+        return Patch(self._gen, container, attr)
+
     def __iter__(self):
         co = self._gen_func()
         with suppress(StopIteration):
@@ -119,9 +125,10 @@ class Loco:
                     for i, p in enumerate(value.calls):
                         p.on()
                     val = (yield)
+                    import ipdb; ipdb.set_trace()
                     
                     # TODO check
-                    # value.calls[1].original==val[1].func
+                    # val.func.__wrapped__ is value.calls[2].original
 
                     for p in value.calls:
                         p.off()
@@ -132,8 +139,10 @@ class Loco:
 
                 p = value
                 # container, attr = co.send(val)
-                p.on()
-                val = (yield)
-                p.off()
+                import ipdb
+                with ipdb.launch_ipdb_on_exception():
+                    p.on()
+                    val = (yield)
+                    p.off()
 
 

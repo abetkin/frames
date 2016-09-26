@@ -49,6 +49,7 @@ class LocoLoader(loader.TestLoader):
             obj = getattr(module, name)
             if isinstance(obj, type) and issubclass(obj, Loco):
                 tests.extend(self.loadTestsFromTestCase(obj))
+        # print('t', tests)
         return self.suiteClass(tests)
 
     # TODO loadFromName
