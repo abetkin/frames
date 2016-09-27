@@ -24,8 +24,8 @@ class L(Loco):
             self.enter(sys.modules[__name__], 'incr'),
         ]
         while 1:
-            e = yield AnyCall(*events)
-            print(e)
+            ev, info = yield AnyCall(*events)
+            print(ev.which, ev.call.type, ev.call_info.func, info)
 
     # def loco_main(self):
     #     import ipdb; ipdb.set_trace()
@@ -38,3 +38,6 @@ if __name__ == '__main__':
     r = DoCalc(2)
     # import ipdb; ipdb.set_trace()
     print("2 + 1 = %s" % r)
+
+
+# TODO debuG!!!

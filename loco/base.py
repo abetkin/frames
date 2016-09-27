@@ -3,6 +3,9 @@ from functools import wraps
 
 class Patch:
 
+    def __repr__(self):
+        return ' '.join((self.parent.__name__, self.attribute))
+
     def __init__(self, co, parent, attribute,
                  type='exit'):
         assert type in ['enter', 'exit']
@@ -33,14 +36,15 @@ class Patch:
 
         @wraps(wrapped)
         def func(*args, **kwargs):
-            call_args = CallArgs(func, args, kwargs)
+            call_args = CallInfo(wrapped, args, kwargs)
             if self.type == 'enter':
                 with suppress(StopIteration):
                     self.co.send(call_args)
             ret = wrapped(*args, **kwargs)
             if self.type == 'exit':
                 with suppress(StopIteration):
-                    self.co.send((ret, call_args))
+                    call_args.ret = ret
+                    self.co.send(call_args)
             return ret
         
         if isinstance(__self__, type):
@@ -54,19 +58,29 @@ class Patch:
 class AnyCall(object):
     def __init__(self, *calls):
         self.calls = calls
+    
+    def resolve(self, call, call_info):
+        self.call = call
+        self.call_info = call_info
+    
+    @property
+    def which(self):
+        return self.calls.index(self.call)
+
 
 
 
 import inspect
 
-class CallArgs:
+class CallInfo:
 
-    def __init__(self, func, args, kwargs):
+    def __init__(self, func, args, kwargs, ret=NotImplemented):
         self.func = func
         self.args = args
         self.kwargs = kwargs
         self._signature = inspect.signature(func)
         self.bound_args = self._signature.bind(*args, **kwargs).arguments
+        self.ret = ret
 
 
     def __getitem__(self, key):
@@ -88,7 +102,9 @@ class CallArgs:
         return '(%s)' % ', '.join(pairs())
 
     def __iter__(self):
-        return iter(self.args)
+        if self.ret is not NotImplemented:
+            yield self.ret
+        yield from self.args
 
 
 
@@ -125,10 +141,14 @@ class Loco:
                     for i, p in enumerate(value.calls):
                         p.on()
                     val = (yield)
-                    import ipdb; ipdb.set_trace()
                     
-                    # TODO check
-                    # val.func.__wrapped__ is value.calls[2].original
+                    options = [p.original for p in value.calls]
+                    which = options.index(val.func)
+                    value.resolve(value.calls[which], val)
+
+                    
+                    val = value, val
+                    # val.func is value.calls[2].original
 
                     for p in value.calls:
                         p.off()
