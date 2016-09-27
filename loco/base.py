@@ -3,6 +3,10 @@ from functools import wraps
 
 class Patch:
 
+    # FIXME ? is it needed
+    # use target as a singleton (target.patched = True)
+    patched = {}
+
     def __repr__(self):
         return ' '.join((self.parent.__name__, self.attribute))
 
@@ -10,11 +14,12 @@ class Patch:
                  type='exit'):
         assert type in ['enter', 'exit']
         self.type = type
-        self.co = co
+        self.co = co # FIXME co is a listener
         self.parent = parent
         self.attribute = attribute
         self.original = getattr(self.parent, self.attribute, None)
         self.wrapper = self.make_wrapper(self.original)
+
 
     def on(self):
         setattr(self.parent, self.attribute, self.wrapper)
@@ -27,6 +32,12 @@ class Patch:
 
     def __or__(self, other):
         return AnyCall(self, other)
+
+    # TODO enter & exit hooks
+
+    def hook(self, ret, call_info):
+        call_info.ret = ret
+        self.co.send(call_args)
 
     def make_wrapper(self, wrapped):
         wrapped = self.original
@@ -140,6 +151,7 @@ class Loco:
                 if isinstance(value, AnyCall):
                     for i, p in enumerate(value.calls):
                         p.on()
+                        # FIXME patches on same target
                     val = (yield)
                     
                     options = [p.original for p in value.calls]

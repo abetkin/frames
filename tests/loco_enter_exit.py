@@ -25,6 +25,7 @@ class L(Loco):
         ]
         while 1:
             ev, info = yield AnyCall(*events)
+            import ipdb; ipdb.set_trace()
             print(ev.which, ev.call.type, ev.call_info.func, info)
 
     # def loco_main(self):
