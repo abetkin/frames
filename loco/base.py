@@ -1,11 +1,11 @@
 from contextlib import suppress
 from functools import wraps
 
+# think about blinker
+
 class Patch:
 
-    # FIXME ? is it needed
     # use target as a singleton (target.patched = True)
-    patched = {}
 
     def __repr__(self):
         return ' '.join((self.parent.__name__, self.attribute))
@@ -18,13 +18,24 @@ class Patch:
         self.parent = parent
         self.attribute = attribute
         self.original = getattr(self.parent, self.attribute, None)
+        
+        listeners = [(self.co, self.type)]
+        if not getattr(self.original, 'listeners', None):
+            setattr(self.original, 'listeners', listeners)
+
+        else:
+            self.original.listeners.extend(listeners)
         self.wrapper = self.make_wrapper(self.original)
 
 
     def on(self):
+        # patch if no listeners
+        # add listener
         setattr(self.parent, self.attribute, self.wrapper)
 
     def off(self):
+        # remove listener
+        # if no listeners, unpatch
         if self.original:
             setattr(self.parent, self.attribute, self.original)
         else:
