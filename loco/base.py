@@ -5,6 +5,7 @@ from functools import wraps
 
 class Patch:
 
+    # is listener for (container, func)
     # use target as a singleton (target.patched = True)
 
     def __repr__(self):
@@ -19,36 +20,41 @@ class Patch:
         self.attribute = attribute
         self.original = getattr(self.parent, self.attribute, None)
         
-        listeners = [(self.co, self.type)]
-        if not getattr(self.original, 'listeners', None):
-            setattr(self.original, 'listeners', listeners)
+        # listeners = [(self.co, self.type)]
+        # if not getattr(self.original, 'listeners', None):
+        #     setattr(self.original, 'listeners', listeners)
 
-        else:
-            self.original.listeners.extend(listeners)
+        # else:
+        #     self.original.listeners.extend(listeners)
         self.wrapper = self.make_wrapper(self.original)
 
 
     def on(self):
         # patch if no listeners
         # add listener
-        setattr(self.parent, self.attribute, self.wrapper)
+        target = self.original
+        
+        if not getattr(target, 'listeners', None):
+            setattr(self.parent, self.attribute, self.wrapper)
+            if not getattr(target, 'listeners', None):
+                target.listeners = []
+        target.listeners.append(self)
+            
 
     def off(self):
         # remove listener
         # if no listeners, unpatch
-        if self.original:
+        target = self.original
+        target.listeners.remove(self)
+        if not target.listeners:
             setattr(self.parent, self.attribute, self.original)
-        else:
-            delattr(self.parent, self.attribute)
 
     def __or__(self, other):
         return AnyCall(self, other)
 
-    # TODO enter & exit hooks
-
-    def hook(self, ret, call_info):
-        call_info.ret = ret
-        self.co.send(call_args)
+    # def hook(self, ret, call_info):
+    #     call_info.ret = ret
+    #     self.co.send(call_args)
 
     def make_wrapper(self, wrapped):
         wrapped = self.original
@@ -59,14 +65,18 @@ class Patch:
         @wraps(wrapped)
         def func(*args, **kwargs):
             call_args = CallInfo(wrapped, args, kwargs)
-            if self.type == 'enter':
-                with suppress(StopIteration):
-                    self.co.send(call_args)
+            for p in wrapped.listeners:
+                import ipdb; ipdb.set_trace()
+                if p.type == 'enter':
+                    with suppress(StopIteration):
+                        p.co.send(call_args)
+                        # AnyCall: here all patches should be unapplied
             ret = wrapped(*args, **kwargs)
-            if self.type == 'exit':
-                with suppress(StopIteration):
-                    call_args.ret = ret
-                    self.co.send(call_args)
+            for p in wrapped.listeners:
+                if p.type == 'exit':
+                    with suppress(StopIteration):
+                        call_args.ret = ret
+                        p.co.send(call_args)
             return ret
         
         if isinstance(__self__, type):
@@ -162,13 +172,10 @@ class Loco:
                 if isinstance(value, AnyCall):
                     for i, p in enumerate(value.calls):
                         p.on()
-                        # FIXME patches on same target
                     val = (yield)
-                    
                     options = [p.original for p in value.calls]
                     which = options.index(val.func)
                     value.resolve(value.calls[which], val)
-
                     
                     val = value, val
                     # val.func is value.calls[2].original
