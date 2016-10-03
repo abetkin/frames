@@ -38,6 +38,3 @@ if __name__ == '__main__':
     r = DoCalc(2)
     # import ipdb; ipdb.set_trace()
     print("2 + 1 = %s" % r)
-
-
-# TODO debuG!!!
