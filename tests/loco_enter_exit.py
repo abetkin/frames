@@ -15,17 +15,17 @@ class DoCalc(object):
 
 class L(Loco):
 
-
     def loco_1(self):
         events = [
             self.enter(DoCalc, '__new__'),
             self.exit(DoCalc, '__new__'),
-            self.exit(sys.modules[__name__], 'incr'),
             self.enter(sys.modules[__name__], 'incr'),
+            self.exit(sys.modules[__name__], 'incr'),            
         ]
         while 1:
-            ev, info = yield AnyCall(*events)
-            print(ev.which, ev.call.type, ev.call_info.func, info)
+            # forw, back = ...
+            info = yield AnyCall(*events)
+            print(info.which, info.func, info)
 
     # def loco_main(self):
     #     import ipdb; ipdb.set_trace()

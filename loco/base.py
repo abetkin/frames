@@ -66,7 +66,6 @@ class Patch:
         def func(*args, **kwargs):
             call_args = CallInfo(wrapped, args, kwargs)
             for p in wrapped.listeners:
-                import ipdb; ipdb.set_trace()
                 if p.type == 'enter':
                     with suppress(StopIteration):
                         p.co.send(call_args)
@@ -173,12 +172,13 @@ class Loco:
                     for i, p in enumerate(value.calls):
                         p.on()
                     val = (yield)
-                    options = [p.original for p in value.calls]
-                    which = options.index(val.func)
-                    value.resolve(value.calls[which], val)
-                    
-                    val = value, val
-                    # val.func is value.calls[2].original
+                    for i, call in enumerate(value.calls):
+                        if call.original is not val.func:
+                            continue
+                        enter = (val.ret is NotImplemented)
+                        if  enter == (call.type == 'enter'):
+                            val.which = i
+                            break
 
                     for p in value.calls:
                         p.off()
