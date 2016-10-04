@@ -16,19 +16,17 @@ class Ex(Loco):
     #         print('call returned', call)
 
     def loco_dispatch(self):
-        events = [
-            self.enter(SQLTranslator, 'dispatch'),
-            self.exit(SQLTranslator, 'dispatch'),
-        ]
         indent = 0
         while True:
-            ret = yield AnyCall(*events)
-            tr, node, *_ = ret
+            ret = yield AnyCall(
+                self.enter(SQLTranslator, 'dispatch'),
+                self.exit(SQLTranslator, 'dispatch'),
+            )
+            translator, node, *_ = ret
             if ret.which == 0:
                 print('{}{}'.format(' ' * indent, node))
                 indent += 2
             else:
-                assert ret.which == 1
                 indent -= 2
 
     
