@@ -4,6 +4,10 @@ from loco import Loco
 
 from pony.orm.sqltranslation import SQLTranslator, Monad
 
+from loco.base import AnyCall, Loco, Patch
+
+from pony.orm import *
+
 class Ex(Loco):
 
     # def loco_1(self):
@@ -11,18 +15,27 @@ class Ex(Loco):
     #         call = yield SQLTranslator, 'call'
     #         print('call returned', call)
 
-    def loco_2(self):
-        yielded = (yield SQLTranslator, '__init__')
-        _, [tr, *_] = yielded
-        
-        # rv, [tr, *] = yield 'mod', 'SQLTranslator'
-        # tr = yielded[1][0]
-        print('tr', tr)
-    
-    def loco_monads(self):
+    def loco_dispatch(self):
+        events = [
+            self.enter(SQLTranslator, 'dispatch'),
+            self.exit(SQLTranslator, 'dispatch'),
+        ]
+        indent = 0
         while True:
-            _, [m, *_] = yield Monad, '__init__'
-            print(m)
+            ret = yield AnyCall(*events)
+            tr, node, *_ = ret
+            if ret.which == 0:
+                print('{}{}'.format(' ' * indent, node))
+                indent += 2
+            else:
+                assert ret.which == 1
+                indent -= 2
+
+    
+    # def loco_monads(self):
+    #     while True:
+    #         _, [m, *_] = yield Monad, '__init__'
+    #         print(m)
 
 
 
@@ -32,13 +45,18 @@ if __name__ == '__main__':
     
     db = Database('sqlite', ':memory:')
 
-    class Bear(db.Entity):
-        name = Required(str)
+    class Animal(db.Entity):
+        kind = Required(str)
+        traits = Optional(str)
 
     db.generate_mapping(create_tables=True)
 
     with db_session:
-        Bear(name='Umka')
+        Animal(kind='bear')
 
-        bears = select(b.name for b in Bear if b.name.startswith('U'))
-        print(bears[:]) 
+        bears = select(b.traits for b in Animal if b.kind.startswith('b'))
+        print(bears[:])
+
+        # select(
+        #     b for b in Animal
+        # )

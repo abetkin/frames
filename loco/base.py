@@ -133,16 +133,14 @@ class CallInfo:
         return '(%s)' % ', '.join(pairs())
 
     def __iter__(self):
+        yield from self.args
         if self.ret is not NotImplemented:
             yield self.ret
-        yield from self.args
 
 
 
 
 class Loco:
-    # TODO: add unittest asserts
-
     def __init__(self, name):
         self.name = name
         func = getattr(self, name)
